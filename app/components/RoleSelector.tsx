@@ -90,26 +90,37 @@ export default function RoleSelector() {
 
                 {/* Colonne droite - Avatar */}
                 <div className="flex flex-col items-center justify-center">
-                    <p className="text-gray-500 text-sm mb-6">
-                        Incarnation : <span className="text-[#00ff88]">En attente</span>
+                    <p className="text-gray-500 text-sm mb-2">
+                        Statut : <span className="text-yellow-500 animate-pulse">En attente de recrutement</span>
+                    </p>
+                    <p className="text-gray-600 text-xs mb-6 text-center max-w-xs">
+                        Choisis ton rôle pour rejoindre la résistance et libérer le numérique éducatif !
                     </p>
 
                     {/* Avatar circulaire */}
                     <div className="relative w-64 h-64">
-                        <div className="absolute inset-0 rounded-full border-2 border-[#00ff88] opacity-50" />
-                        <div className="absolute inset-4 rounded-full bg-[#1a1a1a] flex items-center justify-center">
-                            <span className="text-6xl opacity-30">🤖</span>
+                        <div className="absolute inset-0 rounded-full border-2 border-dashed border-[#00ff88]/30 animate-spin-slow"
+                            style={{ animationDuration: '20s' }} />
+                        <div className="absolute inset-2 rounded-full border border-[#00ff88]/50" />
+                        <div className="absolute inset-4 rounded-full bg-[#1a1a1a] flex flex-col items-center justify-center">
+                            <span className="text-6xl mb-2 opacity-50">🎭</span>
+                            <span className="text-gray-600 text-xs">Qui seras-tu ?</span>
                         </div>
                         {/* Badge */}
                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-2">
-                            <div className="px-4 py-2 rounded-full bg-[#0d0d0d] border border-[#00ff88] 
+                            <div className="px-4 py-2 rounded-full bg-[#0d0d0d] border border-[#00ff88]/50 
                                         text-[#00ff88] text-xs font-medium flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-[#00ff88] animate-pulse" />
-                                IA Connectée
+                                Système prêt
                             </div>
                         </div>
                     </div>
+
+                    <p className="text-gray-600 text-xs mt-6 text-center max-w-xs">
+                        🎮 6 questions • 🏆 Deviens une légende NIRD
+                    </p>
                 </div>
+
             </div>
         </div>
     );

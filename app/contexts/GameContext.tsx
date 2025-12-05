@@ -113,9 +113,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 nird: prev.score.nird + choice.impact.nird,
             };
 
-            // Calculer le niveau d'avatar
+            // Calculer le niveau d'avatar (6 niveaux = 1 par question)
             let newAvatarLevel = prev.avatarLevel;
-            if (choice.isGoodChoice && newAvatarLevel < 5) {
+            if (choice.isGoodChoice && newAvatarLevel < 6) {
                 newAvatarLevel++;
             } else if (!choice.isGoodChoice && newAvatarLevel > 1) {
                 newAvatarLevel--;
@@ -140,10 +140,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 co2: prev.score.co2 + challenge.impact.co2,
                 nird: prev.score.nird + challenge.impact.nird,
             },
-            avatarLevel: Math.min(5, prev.avatarLevel + 1),
+            avatarLevel: Math.min(6, prev.avatarLevel + 1),
             terminalCompleted: prev.terminalCompleted + 1,
         }));
     }, []);
+
 
     const getTotalQuestions = useCallback(() => {
         if (!gameState.role) return 5;

@@ -127,15 +127,16 @@ export default function GamePage({ roleId }: GamePageProps) {
                             <div className="space-y-2">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-400">Niveau d'évolution</span>
-                                    <span className="text-[#00ff88] font-bold">{gameState.avatarLevel}/5</span>
+                                    <span className="text-[#00ff88] font-bold">{gameState.avatarLevel}/6</span>
                                 </div>
                                 <div className="h-3 bg-[#0d0d0d] rounded-full overflow-hidden border border-[#2a2a2a]">
                                     <div
                                         className="h-full bg-[#00ff88] transition-all duration-500 ease-out shadow-[0_0_10px_rgba(0,255,136,0.5)]"
-                                        style={{ width: `${(gameState.avatarLevel / 5) * 100}%` }}
+                                        style={{ width: `${(gameState.avatarLevel / 6) * 100}%` }}
                                     />
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>

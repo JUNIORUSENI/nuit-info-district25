@@ -21,6 +21,7 @@ export interface Choice {
     nird: number;       // Points NIRD gagnés ou perdus
   };
   isGoodChoice: boolean;
+  nextBranch?: string;  // Branche narrative suivante (linux, windows, mac)
 }
 
 export interface Scenario {
@@ -30,7 +31,9 @@ export interface Scenario {
   situation: string;
   choices: Choice[];
   isTerminal?: boolean;  // Si c'est un défi terminal
+  requiredBranch?: string | string[];  // Branche requise pour afficher ce scénario
 }
+
 
 export interface TerminalChallenge {
   id: string;
