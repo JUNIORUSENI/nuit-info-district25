@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
-import { getScenariosForRole } from '../data/questionsHelper';
 import { Choice, RoleType, Scenario } from '../types/game';
 import ResultScreen from './ResultScreen';
 import { useGame } from '../contexts/GameContext';
@@ -15,37 +14,28 @@ interface GamePageProps {
 }
 
 export default function GamePage({ roleId }: GamePageProps) {
-    const { gameState, selectRole, makeChoice, resetGame } = useGame();
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [isGameOver, setIsGameOver] = useState(false);
+    const { gameState, selectRole, makeChoice, resetGame, getCurrentScenario, getTotalQuestions } = useGame();
 
-    const scenarios = getScenariosForRole(roleId);
-    const currentScenario: Scenario | null = scenarios[currentIndex] || null;
+    const totalQuestions = getTotalQuestions(); // Toujours 6
+    const currentScenario: Scenario | null = getCurrentScenario();
     const selectedRole = roles.find(r => r.id === roleId);
+    const currentIndex = gameState.currentScenarioIndex;
 
     useEffect(() => {
         selectRole(roleId);
     }, [roleId, selectRole]);
 
     const handleChoice = (choice: Choice) => {
-        // Mettre à jour le score
+        // makeChoice gère maintenant l'index et isGameOver
         makeChoice(choice);
-
-        // Passer à la question suivante
-        if (currentIndex + 1 >= scenarios.length) {
-            setIsGameOver(true);
-        } else {
-            setCurrentIndex(prev => prev + 1);
-        }
     };
 
     const handleRestart = () => {
         resetGame();
-        setCurrentIndex(0);
-        setIsGameOver(false);
     };
 
-    if (isGameOver) {
+    // Utiliser isGameOver du contexte
+    if (gameState.isGameOver) {
         return <ResultScreen onRestart={handleRestart} />;
     }
 
@@ -84,7 +74,7 @@ export default function GamePage({ roleId }: GamePageProps) {
                         <div className="text-gray-400 font-medium bg-[#0d0d0d] px-4 py-3 rounded-2xl border border-[#2a2a2a]">
                             Question <span className="text-white">{currentIndex + 1}</span>
                             <span className="text-gray-600 mx-1">/</span>
-                            <span>{scenarios.length}</span>
+                            <span>{totalQuestions}</span>
                         </div>
                     </div>
                 </header>

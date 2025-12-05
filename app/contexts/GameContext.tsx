@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { GameState, RoleType, Choice, Scenario } from '../types/game';
-import { getScenariosForRole, getQuestionCountForRole } from '../data/questionsHelper';
+import { getScenarioForPosition, getQuestionCountForRole } from '../data/questionsHelper';
 import { getRandomTerminalForRole, TerminalChallenge } from '../data/terminals';
 
 interface GameContextType {
@@ -33,30 +33,31 @@ const initialState: GameState = {
     terminalCompleted: 0,
 };
 
-const STORAGE_KEY = 'nird-game-state';
+// Générer la clé localStorage pour un rôle spécifique
+const getStorageKey = (roleId: RoleType): string => `nird-game-state-${roleId}`;
 
-// Charger l'état depuis localStorage
-const loadStateFromStorage = (): GameState => {
-    if (typeof window === 'undefined') return initialState;
+// Charger l'état depuis localStorage pour un rôle spécifique
+const loadStateFromStorage = (roleId: RoleType | null): GameState => {
+    if (typeof window === 'undefined' || !roleId) return initialState;
 
     try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        const saved = localStorage.getItem(getStorageKey(roleId));
         if (saved) {
             const parsed = JSON.parse(saved);
-            return { ...initialState, ...parsed };
+            return { ...initialState, ...parsed, role: roleId };
         }
     } catch (e) {
         console.error('Erreur de chargement localStorage:', e);
     }
-    return initialState;
+    return { ...initialState, role: roleId };
 };
 
-// Sauvegarder l'état dans localStorage
+// Sauvegarder l'état dans localStorage pour le rôle actuel
 const saveStateToStorage = (state: GameState) => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !state.role) return;
 
     try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        localStorage.setItem(getStorageKey(state.role), JSON.stringify(state));
     } catch (e) {
         console.error('Erreur de sauvegarde localStorage:', e);
     }
@@ -68,27 +69,28 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const [gameState, setGameState] = useState<GameState>(initialState);
     const [isHydrated, setIsHydrated] = useState(false);
 
-    // Charger l'état depuis localStorage au montage
+    // Charger l'état depuis localStorage au montage (si un rôle était sauvegardé)
     useEffect(() => {
-        const savedState = loadStateFromStorage();
-        setGameState(savedState);
         setIsHydrated(true);
     }, []);
 
     // Sauvegarder dans localStorage à chaque changement
     useEffect(() => {
-        if (isHydrated) {
+        if (isHydrated && gameState.role) {
             saveStateToStorage(gameState);
         }
     }, [gameState, isHydrated]);
 
     const selectRole = useCallback((role: RoleType) => {
-        setGameState((prev) => ({
-            ...prev,
+        // Charger l'état sauvegardé pour ce rôle spécifique
+        const savedState = loadStateFromStorage(role);
+        setGameState({
+            ...savedState,
             role,
-            currentScenarioIndex: 0,
+            // Réinitialiser la progression si le jeu était terminé
+            currentScenarioIndex: savedState.isGameOver ? 0 : savedState.currentScenarioIndex,
             isGameOver: false,
-        }));
+        });
     }, []);
 
     const updateScore = useCallback((impact: { money: number; co2: number; nird: number }) => {
@@ -121,13 +123,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 newAvatarLevel--;
             }
 
-            console.log('Choice made:', choice.id, 'Impact:', choice.impact, 'New score:', newScore);
+            // Passer à la question suivante
+            const nextIndex = prev.currentScenarioIndex + 1;
+            const isGameOver = nextIndex >= 6; // Toujours 6 questions
+
+            console.log('Choice made:', choice.id, 'Impact:', choice.impact, 'New score:', newScore, 'Next index:', nextIndex);
 
             return {
                 ...prev,
                 score: newScore,
                 avatarLevel: newAvatarLevel,
                 decisions: [...prev.decisions, choice.id],
+                currentScenarioIndex: nextIndex,
+                isGameOver: isGameOver,
             };
         });
     }, []);
@@ -147,9 +155,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
 
     const getTotalQuestions = useCallback(() => {
-        if (!gameState.role) return 5;
-        return getQuestionCountForRole(gameState.role);
-    }, [gameState.role]);
+        return 6; // Toujours 6 questions par partie
+    }, []);
 
     const nextScenario = useCallback(() => {
         setGameState((prev) => {
@@ -174,9 +181,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
     const getCurrentScenario = useCallback((): Scenario | null => {
         if (!gameState.role) return null;
-        const scenarios = getScenariosForRole(gameState.role);
-        return scenarios[gameState.currentScenarioIndex] || null;
-    }, [gameState.role, gameState.currentScenarioIndex]);
+        // Position = index + 1 (1-based)
+        const position = gameState.currentScenarioIndex + 1;
+        return getScenarioForPosition(gameState.role, position, gameState.decisions);
+    }, [gameState.role, gameState.currentScenarioIndex, gameState.decisions]);
 
     const getTerminalChallenge = useCallback(() => {
         if (!gameState.role) return null;

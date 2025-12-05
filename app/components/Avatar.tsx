@@ -75,18 +75,19 @@ export default function Avatar() {
                     style={{ transform: 'scale(0.8)' }}
                 />
 
-                {/* Image carrée avec bordure */}
+                {/* Conteneur image 950x700 */}
                 <div
-                    className={`relative w-48 h-48 rounded-2xl border-4 overflow-hidden 
+                    className={`relative rounded-2xl border-4 overflow-hidden 
                         transition-all duration-500 ${avatar.color}
                         ${level >= 4 ? 'shadow-[0_0_30px_rgba(0,255,136,0.5)]' : ''}
                         ${level >= 5 ? 'animate-pulse' : ''}`}
+                    style={{ width: '238px', height: '175px' }}
                 >
                     <Image
                         src={avatarImage}
                         alt={`Avatar ${selectedRole?.title} niveau ${level}`}
                         fill
-                        className="object-cover"
+                        className="object-contain"
                         priority
                     />
 
@@ -104,18 +105,6 @@ export default function Avatar() {
                     )}
                 </div>
 
-                {/* Badge de statut */}
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2">
-                    <div className={`px-4 py-2 rounded-full bg-[#0d0d0d] border-2
-                        text-xs font-bold flex items-center gap-2 whitespace-nowrap
-                        ${level >= 4
-                            ? 'border-[#00ff88] text-[#00ff88] shadow-[0_0_15px_rgba(0,255,136,0.5)]'
-                            : 'border-[#2a2a2a] text-gray-400'
-                        }`}>
-                        <div className={`w-2 h-2 rounded-full ${level >= 4 ? 'bg-[#00ff88] animate-pulse' : 'bg-gray-500'}`} />
-                        {avatar.status}
-                    </div>
-                </div>
             </div>
 
             {/* Barre de progression */}
